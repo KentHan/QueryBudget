@@ -13,7 +13,7 @@ public class QueryBudget {
 
     public Double query(LocalDate start, LocalDate end) {
 
-        if(start.isAfter(end)) {
+        if (start.isAfter(end)) {
             throw new RuntimeException("start date > end date");
         }
 
@@ -34,11 +34,7 @@ public class QueryBudget {
                 int daysOfMonth = LocalDate.of(year, month, 1).lengthOfMonth();
 
                 if (start.getMonthValue() == month && start.getYear() == year) {
-                    int startCoverDays =
-                            (start.getMonthValue() == end.getMonthValue() && start.getYear() == end.getYear()) ?
-                            end.getDayOfMonth() - start.getDayOfMonth() + 1
-                                                                                                               :
-                            daysOfMonth - start.getDayOfMonth() + 1;
+                    int startCoverDays = getCoveredDayOfFirstMonth(start, end, daysOfMonth);
                     sum += budget.getMoney() / daysOfMonth * startCoverDays;
                     continue;
 
@@ -57,12 +53,38 @@ public class QueryBudget {
         return sum;
     }
 
+    private int getCoveredDayOfFirstMonth(LocalDate start, LocalDate end, int daysOfMonth) {
+
+        if (start.getMonthValue() == end.getMonthValue() && start.getYear() == end.getYear()) {
+            return end.getDayOfMonth() - start.getDayOfMonth() + 1;
+        }
+        return daysOfMonth - start.getDayOfMonth() + 1;
+    }
+
     private boolean isBudgetIncluded(LocalDate start, LocalDate end, int budgetYear, int budgetMonth) {
 
-        if (start.getYear() == end.getYear()){
+        if (start.getYear() == end.getYear()) {
             return budgetMonth >= start.getMonthValue() && budgetMonth <= end.getMonthValue();
         } else {
-            return budgetYear >= start.getYear() && budgetYear <= end.getYear();
+
+            boolean largerThanStart = false;
+
+            if(budgetYear > start.getYear()){
+                largerThanStart = true;
+            }else if( budgetYear == start.getYear()){
+                largerThanStart = budgetMonth >= start.getMonthValue();
+            }
+
+
+            boolean lessThanEnd = false;
+
+            if(budgetYear < end.getYear()){
+                lessThanEnd = true;
+            }else if( budgetYear == end.getYear()){
+                lessThanEnd = budgetMonth <= start.getMonthValue();
+            }
+
+            return largerThanStart && lessThanEnd;
         }
 
     }

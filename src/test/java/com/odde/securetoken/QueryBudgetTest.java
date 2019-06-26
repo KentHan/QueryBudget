@@ -1,15 +1,11 @@
 package com.odde.securetoken;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.lang.reflect.Array;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.junit.Test;
 
@@ -169,6 +165,23 @@ public class QueryBudgetTest {
         QueryBudget queryBudget = new QueryBudget(budgetDatasource);
         Double result = queryBudget.query(start, end);
 
+
+    }
+
+    @Test
+    public void testCrossYearWithoutBudget(){
+
+        giveBudget(
+                new Budget("2018/8", 31)
+        );
+
+        givenStartDate(2018, 9, 1);
+        givenEndDate(2019,1,2);
+
+        QueryBudget queryBudget = new QueryBudget(budgetDatasource);
+        Double result = queryBudget.query(start, end);
+
+        assertEquals((Double)0.0, result);
 
     }
 
